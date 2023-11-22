@@ -7,6 +7,9 @@ import javax.swing.JFrame;
 
 public class Principal extends JFrame implements MouseMotionListener {
 	
+    private static int larguraTela = 1920;
+    private static int alturaTela = 900;
+	
 	private ImagemMovida pokemon;
 	private Imagem paisagem;
 	private ImagemAnimada pokemonAnimado;
@@ -19,7 +22,7 @@ public class Principal extends JFrame implements MouseMotionListener {
 		this.addMouseMotionListener(this);
 	
 		pokemon = new ImagemMovida();
-		pokemon.setX(50);
+		pokemon.setX(1700);
 		pokemon.setY(500);
 		pokemon.setImg("pokemon.png");
 		
@@ -30,7 +33,7 @@ public class Principal extends JFrame implements MouseMotionListener {
 		
 		pokemonAnimado = new ImagemAnimada();
 		pokemonAnimado.setX(-384); // inicia fora da tela para vir suavemente
-		pokemonAnimado.setY(50);
+		pokemonAnimado.setY(450);
 		pokemonAnimado.setImg("pokemon2.png");
 	}
 	
@@ -41,12 +44,21 @@ public class Principal extends JFrame implements MouseMotionListener {
 		pokemon.desenhar(g2);
 		pokemonAnimado.desenhar(g2);
 		
+		try {
+	        if(pokemon.intercepta(pokemonAnimado)) {
+	            throw new interceptacao();
+	        }
+	    } catch (interceptacao e) {
+	        mudarYImagemAnimada();
+	        pokemon.setImg("pokemon3.png");
+	    }
+		
 	}
 	
 	//EVITAR ALTERAR ESSE METODO
 	public static void main(String[] args) {
 		Principal t = new Principal();
-		t.setSize(1920, 900);
+		t.setSize(larguraTela, alturaTela);
 		t.createBufferStrategy(1);		
 		t.setVisible(true);
 		t.createBufferStrategy(2);
@@ -82,7 +94,11 @@ public class Principal extends JFrame implements MouseMotionListener {
 
 		// subtraio os valores só pro mouse ficar centralizado na imagem
 		if(mouseX - 100 > pokemon.getX()) {
-            pokemon.moverDireita(1);
+			try {
+				pokemon.moverDireita(1);
+			} catch (PosicaoInvalidaException e) {
+	            System.out.println("Posição Inválida!");
+	        }
         } else {
             pokemon.moverEsquerda(1);
         }
@@ -97,12 +113,15 @@ public class Principal extends JFrame implements MouseMotionListener {
 	
 	// caso a imagem animada chegue no final, volte, mas para fora da tela, por isso -(largura da imagem)
 	private void voltarImagemAnimada() {
-	    if (pokemonAnimado.getX() > 1920) { 
+	    if (pokemonAnimado.getX() > larguraTela) { 
 	        pokemonAnimado.setX(-384);
 	    }
 	}
-
 	
+	private void mudarYImagemAnimada() {
+		pokemonAnimado.setY(50);
+	}
+
 	@Override
 	public void mouseMoved(MouseEvent mouse) {
 		
